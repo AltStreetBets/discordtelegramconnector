@@ -65,9 +65,9 @@ This is achieved by using [cross-rs](https://github.com/cross-rs/cross).
 
 Prepare Rust for cross compiling
 
-Install [Docker](https://www.docker.com/).
+1. Install [Docker](https://www.docker.com/).
 
-```cargo install cross```
+2. ```cargo install cross```
 
 and, done!
 
