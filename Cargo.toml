@@ -11,7 +11,7 @@ tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 dotenv_codegen = "0.15.0"
 chrono = "0.4.19"
 teloxide = { version = "0.10", features = ["macros", "auto-send"] }
-#openssl = { version = "0.10", features = ["vendored"] } #turn this on if it does run while cross compiling
+#openssl = { version = "0.10", features = ["vendored"] } #turn this on if it doesn't run while cross compiling
 
 [build.env]
 passthrough = [
