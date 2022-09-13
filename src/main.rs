@@ -21,13 +21,15 @@ use std::error::Error;
 
 //The Telegram chat that the bot uses, you get this by going to https://api.telegram.org/bot<YourBOTToken>/getUpdates 
 //*and then* adding the bot to your telegram group. DM = positive number, Group Chat = negative number. On the site it will show you the chat id.
-const CHATID1 :ChatId = ChatId(id);
+const CHATID1 :ChatId = ChatId(-id);
+const CHATID2 :ChatId = ChatId(-id);
 //Telegram bot token, you can get this by messaging https://t.me/BotFather on Telegram
 const TELEGRAM_TOKEN :&str= dotenv!("TELEGRAM_TOKEN");
 //The User ID of your Discord bot. Turn on developer mode in Discord, and then right click the bot > Copy ID
 const BOT_ID :u64 = id;
 //The Discord channel that the bot uses, right click a channel > Copy ID
 const RECEIVING_CHANNEL_1 :ChannelId = ChannelId(id);
+const RECEIVING_CHANNEL_2 :ChannelId = ChannelId(id);
 //Discord bot token, set this up at the Discord developer portal
 const DISCORD_TOKEN :&str = dotenv!("DISCORD_TOKEN");
 //Discord is used for Error messages
@@ -61,8 +63,39 @@ impl EventHandler for Handler1 {
                         }
                     }
                 }
-            };                            
-        } 
+            } else { 
+                if let Err(_why) = telegramforward2(msg.content, msg.author.name.clone()).await {
+                    if let Err(why2) = telegramforward2("(unsupported message)".to_string(), msg.author.name).await {
+                        if let Err(_why3) = DISCORD_CHANNEL_ERROR.say(&ctx.http, format!("Error line 74 \n {:?}", why2)).await{
+                            //not error handling this deep but if you want to you can add a println!("{:?}, why3"); here, note that if you detach the terminal this might become funky.
+                        }
+                    }
+                }
+            }                            
+        } else if msg.channel_id == RECEIVING_CHANNEL_2 && msg.author.id != BOT_ID {
+            if let Some(discordname) = msg.author_nick(&ctx.http).await {
+                
+            //Forwarding messages to Telegram by calling function
+                if let Err(_why) = telegramforwardofficial(msg.content, discordname.clone()).await {
+                    if let Err(why2) = telegramforwardofficial("(unsupported message)".to_string(), discordname).await {
+                        if let Err(_why3) = DISCORD_CHANNEL_ERROR.say(&ctx.http, format!("Error line 74 \n {:?}", why2)).await{
+                            //not error handling this deep but if you want to you can add a println!("{:?}, why3"); here, note that if you detach the terminal this might become funky.
+                        }
+                    }
+                }
+            } else { 
+                if let Err(_why) = telegramforwardofficial2(msg.content, msg.author.name.clone()).await {
+                    if let Err(why2) = telegramforwardofficial2("(unsupported message)".to_string(), msg.author.name).await {
+                        if let Err(_why3) = DISCORD_CHANNEL_ERROR.say(&ctx.http, format!("Error line 74 \n {:?}", why2)).await{
+                            //not error handling this deep but if you want to you can add a println!("{:?}, why3"); here, note that if you detach the terminal this might become funky.
+                        }
+                    }
+                }
+            }                            
+        }
+        
+        
+
     }
     //Discord bot connection checker
     async fn ready(&self, ctx: Context, ready: Ready) {
@@ -93,7 +126,7 @@ impl EventHandler for Handler1 {
                 if contenttelegram == "/start" {
                     bot.send_message(chat.id, "Bot is working").await?;
                 }
-                else {
+                else if chat.id == CHATID1 {
                     
                     if let Some(username) = m.from() {
                         if let Err(why3) = RECEIVING_CHANNEL_1.say(&ctx5.http, format!("**{:?}:** {}",username.first_name, contenttelegram)).await{
@@ -101,7 +134,16 @@ impl EventHandler for Handler1 {
                                 //not error handling this deep but if you want to you can add a println!("{:?}, why3"); here, note that if you detach the terminal this might become funky.
                             }
                         }
-                    }                                     
+                    }                                    
+                } else if chat.id == CHATID2 {
+                    
+                    if let Some(username) = m.from() {
+                        if let Err(why3) = RECEIVING_CHANNEL_2.say(&ctx5.http, format!("**{:?}:** {}",username.first_name, contenttelegram)).await{
+                            if let Err(_why4) = DISCORD_CHANNEL_ERROR.say(&ctx5.http, format!("Error line 74 \n {:?}", why3)).await{
+                                //not error handling this deep but if you want to you can add a println!("{:?}, why3"); here, note that if you detach the terminal this might become funky.
+                            }
+                        }
+                    }                                    
                 }
             }
             Ok(())        
@@ -124,5 +166,24 @@ async fn main() {
 async fn telegramforward(content :String, discordname :String)-> Result<(), Box<dyn Error + Send + Sync>> {    
     let bot = Bot::new(TELEGRAM_TOKEN).auto_send();    
     bot.send_message(CHATID1, format!("{}: {}", discordname, content)).await?;
+    Ok(())
+}
+
+async fn telegramforward2(content :String, discordname :String)-> Result<(), Box<dyn Error + Send + Sync>> {    
+    let bot = Bot::new(TELEGRAM_TOKEN).auto_send();    
+    bot.send_message(CHATID1, format!("{}: {}", discordname, content)).await?;
+    Ok(())
+}
+
+//Forwards Discord messages to Telegram official
+async fn telegramforwardofficial(content :String, discordname :String)-> Result<(), Box<dyn Error + Send + Sync>> {    
+    let bot = Bot::new(TELEGRAM_TOKEN).auto_send();    
+    bot.send_message(CHATID2, format!("{}: {}", discordname, content)).await?;
+    Ok(())
+}
+
+async fn telegramforwardofficial2(content :String, discordname :String)-> Result<(), Box<dyn Error + Send + Sync>> {    
+    let bot = Bot::new(TELEGRAM_TOKEN).auto_send();    
+    bot.send_message(CHATID2, format!("{}: {}", discordname, content)).await?;
     Ok(())
 }
