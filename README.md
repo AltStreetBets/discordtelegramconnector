@@ -83,3 +83,9 @@ Use ```scp C:\Users\yourname\yourfilepathtotheproject\application hostdevice@192
 
 If you end up enjoy the bot, pleae let me know:).
 
+
+# TO DO:
+
+- Flag for "ready", right now you can possibly have a leak due to ready spawning multiple times. Small chance, but possible.
+- Discord image link forwarding so that you can forward image from discord to telegram. Other way around does not work.
+
